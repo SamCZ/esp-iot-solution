@@ -387,6 +387,10 @@ void print_intf_desc(const uint8_t *buff);
 void parse_ep_desc(const uint8_t *buff, uint16_t *ep_mps, uint8_t *ep_addr, uint8_t *ep_attr);
 void parse_vs_format_mjpeg_desc(const uint8_t *buff, uint8_t *format_idx, uint8_t *frame_num);
 void parse_vs_frame_mjpeg_desc(const uint8_t *buff, uint8_t *frame_idx, uint16_t *width, uint16_t *heigh);
+
+void parse_vs_format_uncompressed_desc(const uint8_t *buff, uint8_t *format_idx, uint8_t *frame_num);
+void parse_vs_frame_uncompressed_desc(const uint8_t *buff, uint8_t *frame_idx, uint16_t *width, uint16_t *heigh);
+
 void print_uvc_header_desc(const uint8_t *buff, uint8_t sub_class);
 void print_device_descriptor(const uint8_t *buff);
 void print_ep_desc(const uint8_t *buff);

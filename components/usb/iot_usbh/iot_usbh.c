@@ -833,7 +833,7 @@ static esp_err_t _usbh_get_config_desc(usbh_pipe_handle_t pipe_handle, usb_confi
     usb_config_desc_t *cfg_desc = (usb_config_desc_t *)(urb_done->transfer.data_buffer + sizeof(usb_setup_packet_t));
     uint16_t full_config_length = cfg_desc->wTotalLength;
     if (cfg_desc->wTotalLength > CTRL_TRANSFER_DATA_MAX_BYTES) {
-        ESP_LOGE(TAG, "Configuration descriptor larger than control transfer max length");
+        ESP_LOGE(TAG, "Configuration descriptor %d larger than control transfer max length", cfg_desc->wTotalLength);
         goto free_urb_;
     }
 

@@ -18,7 +18,7 @@
 static const char *TAG = "uvc_mic_spk_demo";
 /****************** configure the example working mode *******************************/
 #define ENABLE_UVC_CAMERA_FUNCTION        1        /* enable uvc function */
-#define ENABLE_UAC_MIC_SPK_FUNCTION       1        /* enable uac mic+spk function */
+#define ENABLE_UAC_MIC_SPK_FUNCTION       0        /* enable uac mic+spk function */
 #if (ENABLE_UVC_CAMERA_FUNCTION)
 #define ENABLE_UVC_FRAME_RESOLUTION_ANY   1        /* Using any resolution found from the camera */
 #define ENABLE_UVC_WIFI_XFER              0        /* transfer uvc frame to wifi http */
@@ -43,8 +43,8 @@ static EventGroupHandle_t s_evt_handle;
 
 #if (ENABLE_UVC_CAMERA_FUNCTION)
 #if (ENABLE_UVC_FRAME_RESOLUTION_ANY)
-#define DEMO_UVC_FRAME_WIDTH        FRAME_RESOLUTION_ANY
-#define DEMO_UVC_FRAME_HEIGHT       FRAME_RESOLUTION_ANY
+#define DEMO_UVC_FRAME_WIDTH        640
+#define DEMO_UVC_FRAME_HEIGHT       480
 #else
 #define DEMO_UVC_FRAME_WIDTH        480
 #define DEMO_UVC_FRAME_HEIGHT       320
@@ -103,6 +103,8 @@ static void camera_frame_cb(uvc_frame_t *frame, void *ptr)
 {
     ESP_LOGI(TAG, "uvc callback! frame_format = %d, seq = %"PRIu32", width = %"PRIu32", height = %"PRIu32", length = %u, ptr = %d",
              frame->frame_format, frame->sequence, frame->width, frame->height, frame->data_bytes, (int) ptr);
+
+
 }
 #endif //ENABLE_UVC_WIFI_XFER
 #endif //ENABLE_UVC_CAMERA_FUNCTION
@@ -237,7 +239,7 @@ void app_main(void)
         /* match the any resolution of current camera (first frame size as default) */
         .frame_width = DEMO_UVC_FRAME_WIDTH,
         .frame_height = DEMO_UVC_FRAME_HEIGHT,
-        .frame_interval = FPS2INTERVAL(15),
+        .frame_interval = FPS2INTERVAL(25),
         .xfer_buffer_size = DEMO_UVC_XFER_BUFFER_SIZE,
         .xfer_buffer_a = xfer_buffer_a,
         .xfer_buffer_b = xfer_buffer_b,
@@ -245,12 +247,16 @@ void app_main(void)
         .frame_buffer = frame_buffer,
         .frame_cb = &camera_frame_cb,
         .frame_cb_arg = NULL,
+		.format_index = UVC_FRAME_FORMAT_YUYV,
+		.flags = 0x8004
     };
     /* config to enable uvc function */
     ret = uvc_streaming_config(&uvc_config);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "uvc streaming config failed");
     }
+
+
 #endif
 
 #if (ENABLE_UAC_MIC_SPK_FUNCTION)

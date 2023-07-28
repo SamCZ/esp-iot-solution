@@ -181,6 +181,97 @@ void parse_vs_frame_mjpeg_desc(const uint8_t *buff, uint8_t *frame_idx, uint16_t
     }
 }
 
+void parse_vs_format_uncompressed_desc(const uint8_t *buff, uint8_t *format_idx, uint8_t *frame_num)
+{
+	if (buff == NULL) {
+		return;
+	}
+	const vs_format_desc_t *desc = (const vs_format_desc_t *) buff;
+#ifdef CONFIG_UVC_PRINT_DESC
+	printf("\t*** VS Format MJPEG Descriptor ***\n");
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tbLength 0x%x\n", desc->bLength);
+    printf("\tbDescriptorType 0x%x\n", desc->bDescriptorType);
+    printf("\tbDescriptorSubType 0x%x\n", desc->bDescriptorSubType);
+#endif
+    printf("\tbFormatIndex 0x%x\n", desc->bFormatIndex);
+    printf("\tbNumFrameDescriptors %u\n", desc->bNumFrameDescriptors);
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tbmFlags 0x%x\n", desc->bmFlags);
+#endif
+    printf("\tbDefaultFrameIndex %u\n", desc->bDefaultFrameIndex);
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tbAspectRatioX %u\n", desc->bAspectRatioX);
+    printf("\tbAspectRatioY %u\n", desc->bAspectRatioY);
+    printf("\tbmInterlaceFlags 0x%x\n", desc->bmInterlaceFlags);
+    printf("\tbCopyProtect %u\n", desc->bCopyProtect);
+#endif
+#endif
+	if (format_idx) {
+		*format_idx = desc->bFormatIndex;
+	}
+	if (frame_num) {
+		*frame_num = desc->bNumFrameDescriptors;
+	}
+}
+
+void parse_vs_frame_uncompressed_desc(const uint8_t *buff, uint8_t *frame_idx, uint16_t *width, uint16_t *heigh)
+{
+	if (buff == NULL) {
+		return;
+	}
+	// Copy to local buffer due to potential misalignment issues.
+	uint32_t raw_desc[25];
+	uint32_t desc_size = ((const vs_frame_desc_t *)buff)->bLength;
+	memcpy(raw_desc, buff, desc_size);
+
+	const vs_frame_desc_t *desc = (const vs_frame_desc_t *) raw_desc;
+#ifdef CONFIG_UVC_PRINT_DESC
+	printf("\t*** VS MJPEG Frame Descriptor ***\n");
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tbLength 0x%x\n", desc->bLength);
+    printf("\tbDescriptorType 0x%x\n", desc->bDescriptorType);
+    printf("\tbDescriptorSubType 0x%x\n", desc->bDescriptorSubType);
+#endif
+    printf("\tbFrameIndex 0x%x\n", desc->bFrameIndex);
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tbmCapabilities 0x%x\n", desc->bmCapabilities);
+#endif
+    printf("\twWidth %u\n", desc->wWidth);
+    printf("\twHeigh %u\n", desc->wHeigh);
+#ifdef CONFIG_UVC_PRINT_DESC_VERBOSE
+    printf("\tdwMinBitRate %"PRIu32"\n", desc->dwMinBitRate);
+    printf("\tdwMaxBitRate %"PRIu32"\n", desc->dwMaxBitRate);
+    printf("\tdwMaxVideoFrameBufSize %"PRIu32"\n", desc->dwMaxVideoFrameBufSize);
+    printf("\tdwDefaultFrameInterval %"PRIu32"\n", desc->dwDefaultFrameInterval);
+    printf("\tbFrameIntervalType %u\n", desc->bFrameIntervalType);
+#endif
+
+    if (desc->bFrameIntervalType == 0) {
+        // Continuous Frame Intervals
+        printf("\tdwMinFrameInterval %"PRIu32"\n",  desc->dwMinFrameInterval);
+        printf("\tdwMaxFrameInterval %"PRIu32"\n",  desc->dwMaxFrameInterval);
+        printf("\tdwFrameIntervalStep %"PRIu32"\n", desc->dwFrameIntervalStep);
+    } else {
+        // Discrete Frame Intervals
+        size_t num_of_intervals = (desc->bLength - 26) / 4;
+        uint32_t *interval = (uint32_t *)&desc->dwFrameInterval;
+        for (int i = 0; i < num_of_intervals; ++i) {
+            printf("\tFrameInterval[%d] %"PRIu32"\n", i, interval[i]);
+        }
+    }
+#endif
+	if (width) {
+		*width = desc->wWidth;
+	}
+	if (heigh) {
+		*heigh = desc->wHeigh;
+	}
+	if (frame_idx) {
+		*frame_idx = desc->bFrameIndex;
+	}
+}
+
 void print_ep_desc(const uint8_t *buff)
 {
     if (buff == NULL) {
