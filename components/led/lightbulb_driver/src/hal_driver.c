@@ -1,16 +1,9 @@
-// Copyright 2020-2022 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 
 #include <math.h>
 #include <string.h>
@@ -64,7 +57,7 @@ static void gpio_reverse(int gpio_num)
 #define HAL_OUT_MAX_CHANNEL                     (5)
 #define ERROR_COUNT_THRESHOLD                   (1)
 
-typedef esp_err_t (*x_init_t)(void *config);
+typedef esp_err_t (*x_init_t)(void *config, void(*hook_func)(void *));
 typedef esp_err_t (*x_regist_channel_t)(int channel, int value);
 typedef esp_err_t (*x_set_channel_t)(int channel, uint16_t value);
 typedef esp_err_t (*x_set_rgb_channel_t)(uint16_t value_r, uint16_t value_g, uint16_t value_b);
@@ -559,6 +552,15 @@ static void fade_cb(void *priv)
     xSemaphoreGive(s_hal_obj->fade_mutex);
 }
 
+static void driver_default_hook_func(void *ctx)
+{
+    if (s_hal_obj->interface->type == DRIVER_ESP_PWM) {
+        uint32_t bit = (uint32_t) ctx;
+        s_hal_obj->interface->driver_color_bit_depth = (uint8_t)bit;
+        s_hal_obj->interface->hardware_allow_max_input_value = (1 << (uint8_t)bit);
+    }
+}
+
 esp_err_t hal_output_init(hal_config_t *config, lightbulb_gamma_data_t *gamma, void *priv_data)
 {
     esp_err_t err = ESP_FAIL;
@@ -582,7 +584,7 @@ esp_err_t hal_output_init(hal_config_t *config, lightbulb_gamma_data_t *gamma, v
     }
     LIGHTBULB_CHECK(s_hal_obj->interface, "Unable to find the corresponding driver function", goto EXIT);
 
-    err = s_hal_obj->interface->init(config->driver_data);
+    err = s_hal_obj->interface->init(config->driver_data, driver_default_hook_func);
     LIGHTBULB_CHECK(err == ESP_OK, "driver init fail", goto EXIT);
 
     if (gamma && gamma->table != NULL) {

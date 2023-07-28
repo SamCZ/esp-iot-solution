@@ -1,16 +1,9 @@
-// Copyright 2020-2022 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 
 #include "driver/gpio.h"
 #pragma once
@@ -106,9 +99,10 @@ typedef enum {
  * @brief Initialize bp1658cj output
  *
  * @param config Driver configuration
+ * @param hook_func Hook function, which will be called inside the driver. e.g. to notify that config have been changed internally
  * @return esp_err_t
  */
-esp_err_t bp1658cj_init(driver_bp1658cj_t *config);
+esp_err_t bp1658cj_init(driver_bp1658cj_t *config, void(*hook_func)(void *));
 
 /**
  * @brief Set any channel output

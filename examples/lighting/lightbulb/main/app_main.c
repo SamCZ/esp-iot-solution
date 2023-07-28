@@ -1,13 +1,7 @@
-/* Lightbulb Example
-
-   For other examples please check:
-   https://github.com/espressif/esp-iot-solution/tree/master/examples
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: CC0-1.0
  */
 
 #include <esp_log.h>
@@ -35,7 +29,7 @@ void app_main(void)
 #ifdef CONFIG_IDF_TARGET_ESP32C2
         /* Adapt to ESP8684-DevKitM-1 
          * For details, please refer to: 
-         * https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp8684/esp8684-devkitm-1/user_guide.html
+         * https://docs.espressif.com/projects/esp-dev-kits/zh_CN/latest/esp8684/esp8684-devkitm-1/user_guide.html
         */
         .driver_conf.pwm.invert_level = true,
 #endif
@@ -115,7 +109,7 @@ void app_main(void)
         .led_num = CONFIG_WS2812_LED_NUM,
         .ctrl_io = CONFIG_WS2812_LED_GPIO,
     };
-    ws2812_init(&ws2812);
+    ws2812_init(&ws2812, NULL);
     /* Red */
     ws2812_set_rgb_channel(255, 0, 0);
     vTaskDelay(pdMS_TO_TICKS(2000) * 1);

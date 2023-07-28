@@ -1,16 +1,9 @@
-// Copyright 2020-2022 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 
 #include <math.h>
 #include <string.h>
@@ -1304,7 +1297,7 @@ lightbulb_works_mode_t lightbulb_get_mode(void)
     return result;
 }
 
-esp_err_t  lightbulb_update_status_variable(lightbulb_status_t *new_status, bool trigger)
+esp_err_t lightbulb_update_status_variable(lightbulb_status_t *new_status, bool trigger)
 {
     LIGHTBULB_CHECK(new_status, "new_status is null", return ESP_FAIL);
     LIGHTBULB_CHECK(s_lb_obj, "not init", return ESP_ERR_INVALID_ARG);
@@ -1398,10 +1391,6 @@ esp_err_t lightbulb_basic_effect_start(lightbulb_effect_config_t *config)
                 vTimerSetTimerID(s_lb_obj->effect_timer, NULL);
             }
             xTimerStart(s_lb_obj->effect_timer, 0);
-            /* Make sure the timer has started running */
-            while (!CHECK_EFFECT_TIMER_IS_ACTIVE()) {
-                vTaskDelay(1);
-            }
             ESP_LOGI(TAG, "The auto-stop timer will trigger after %d ms.", config->total_ms);
         } else {
             ESP_LOGI(TAG, "The auto-stop timer is not running, the effect will keep running.");

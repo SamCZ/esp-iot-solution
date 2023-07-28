@@ -1,5 +1,13 @@
 # ChangeLog
 
+## v1.0.5 - 2023-07-21
+
+### Enhancements:
+
+* UVC:
+  * Enable bulk packets reassembling depends on the probe results
+  * Skip check EOH in payload header for compatibility (TinyUSB UVC device not set this bit)
+
 ## v1.0.4 - 2023-07-05
 
 ### Enhancements:
@@ -238,7 +246,7 @@ Add additional delay to avoid malloc error if continuous suspend and resume
 
 ### Enhancements:
 
-* add development documentation https://docs.espressif.com/projects/espressif-esp-iot-solution/zh_CN/latest/usb/usb_stream.html
+* add development documentation https://docs.espressif.com/projects/esp-iot-solution/zh_CN/latest/usb/usb_stream.html
 
 ## v0.3.0 - 2022-12-05
 

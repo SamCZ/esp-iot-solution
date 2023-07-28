@@ -2,20 +2,8 @@
 #
 # Checks that all links in the readme markdown files are valid
 #
-# Copyright 2020 Espressif Systems (Shanghai) PTE LTD
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import concurrent.futures
@@ -31,7 +19,10 @@ from pathlib import Path
 EXCLUDE_DOCS_LIST = ["examples/hmi/lvgl_example/components/lv_examples/lv_examples/**.md",
                      "examples/hmi/lvgl_example/components/lv_examples/lv_examples/src/lv_demo_keypad_encoder/**.md",
                      "examples/hmi/lvgl_wificonfig/lvgl_wificonfig_cn.md",
-                     "examples/get-started/blink/README.md"]
+                     "examples/get-started/blink/README.md",
+                    "components/gui/lvgl_gui/lvgl/**/*.md",
+                     "components/gui/lvgl_gui/lvgl/*.md",
+                     "components/gui/lvgl_gui/lvgl/.github/**/*.md"]
 
 # The apple apps links are not accessible from the company network for some reason
 EXCLUDE_URL_LIST = ["https://lvgl.io/","https://www.espressif.com/zh-hans/products/socs/esp32","http://www.espressif.com/zh-hans/support/download/all","https://www.espressif.com/zh-hans/support/download/all","https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_printer/screenshot1.gif?raw=true"]
@@ -126,7 +117,8 @@ def get_md_links(folder):
 
 def check_readme_links(args):
 
-    links = get_md_links('examples')
+    # Get all links from the readme files
+    links = get_md_links('')
     print('Found {} links'.format(len(links)))
 
     errors = []

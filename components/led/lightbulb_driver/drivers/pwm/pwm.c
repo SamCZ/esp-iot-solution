@@ -1,16 +1,9 @@
-// Copyright 2020-2022 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 
 #include <string.h>
 #include <stdio.h>
@@ -90,7 +83,7 @@ static esp_err_t power_control_lock_create(void)
 }
 #endif
 
-esp_err_t pwm_init(driver_pwm_t *config)
+esp_err_t pwm_init(driver_pwm_t *config, void(*hook_func)(void *))
 {
     esp_err_t err = ESP_OK;
     PWM_CHECK(config, "config is null", return ESP_ERR_INVALID_ARG);
@@ -107,16 +100,25 @@ esp_err_t pwm_init(driver_pwm_t *config)
 
 #if CONFIG_IDF_TARGET_ESP32
     s_pwm->ledc_config.speed_mode = LEDC_HIGH_SPEED_MODE;
-    s_pwm->ledc_config.duty_resolution = LEDC_TIMER_12_BIT;
     s_pwm->ledc_config.clk_cfg = LEDC_USE_APB_CLK;
 #else
     s_pwm->ledc_config.speed_mode = LEDC_LOW_SPEED_MODE;
-    s_pwm->ledc_config.duty_resolution = LEDC_TIMER_12_BIT;
     s_pwm->ledc_config.clk_cfg = LEDC_USE_XTAL_CLK;
 #endif
+    uint32_t preset_bit = LEDC_TIMER_13_BIT;
+    for (s_pwm->ledc_config.duty_resolution = preset_bit; s_pwm->ledc_config.duty_resolution >= LEDC_TIMER_10_BIT; s_pwm->ledc_config.duty_resolution--) {
+        err = ledc_timer_config(&s_pwm->ledc_config);
+        if (err == ESP_OK) {
+            if (preset_bit != s_pwm->ledc_config.duty_resolution) {
+                ESP_LOGW(TAG, "Updated resolution to %d bit", s_pwm->ledc_config.duty_resolution);
+            }
+            break;
+        }
+    }
+    PWM_CHECK(err == ESP_OK, "LEDC timer config fail, please reduce the frequency", goto EXIT);
+    preset_bit = s_pwm->ledc_config.duty_resolution;
+    hook_func((void*)preset_bit);
 
-    err = ledc_timer_config(&s_pwm->ledc_config);
-    PWM_CHECK(err == ESP_OK, "LEDC timer config fail", goto EXIT);
     err = ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
     PWM_CHECK(err == ESP_OK, "ledc_fade_func_install fail", goto EXIT);
 
